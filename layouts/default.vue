@@ -28,7 +28,16 @@
           </ul>
             <!-- / nav -->
           <ul class="h-r-login">
-              
+              <li v-if="!loginInfo.id" id="no-login">
+                  <a href="/login" title="登录">
+                      <em class="icon18 login-icon">&nbsp;</em>
+                      <span class="vam ml5">登录</span>
+                  </a>
+                  |
+                  <a href="/register" title="注册">
+                      <span class="vam ml5">注册</span>
+                  </a>
+              </li>
               <li v-if="loginInfo.id" id="is-login-one" class="mr10">
                   <a id="headerMsgCountId" href="#" title="消息">
                       <em class="icon18 news-icon">&nbsp;</em>
@@ -144,9 +153,27 @@ export default {
     }
   },
   created() {
+    this.token = this.$route.query.token
+    if (this.token) {
+      this.wxLogin()
+    }
     this.showInfo()
   },
   methods:{
+    wxLogin(){
+      console.log("========="+this.token)
+      if (this.token == '') return
+      cookie.set('wwhl_token',this.token,{domain:'localhost'})
+      cookie.set('wwhl_ucenter', '', {domain: 'localhost'})
+      loginApi.getLoginUserInfo(this.token)
+        .then(response=>{
+          this.loginInfo = response.data.data.userInfo
+          console.log(this.loginInfo)
+          //将用户信息记录cookie
+        cookie.set('wwhl_ucenter', this.loginInfo, {domain: 'localhost'})
+        })
+
+    },
     //创建方法，从cookie获取用户信息
     showInfo() {
       //从cookie获取用户信息
